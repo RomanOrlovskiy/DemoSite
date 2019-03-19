@@ -5,10 +5,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.web.support.SpringBootServletInitializer;
 
 @SpringBootApplication
 @EnableAutoConfiguration
-public class AdminApplication {
+public class AdminApplication extends SpringBootServletInitializer{
 
     @Configuration
     @EnableBroadleafAdminAutoConfiguration
@@ -17,6 +18,5 @@ public class AdminApplication {
     public static void main(String[] args) {
         SpringApplication.run(AdminApplication.class, args);
     }
- 
-}
 
+}
