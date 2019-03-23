@@ -12,6 +12,11 @@ import org.springframework.context.annotation.Import;
 import com.community.core.config.CoreConfig;
 import com.community.core.config.StringFactoryBean;
 
+import javax.sql.DataSource;
+import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
+import javax.naming.NamingException;
+import org.springframework.context.annotation.Primary;
+
 /**
  * @author Elbert Bautista (elbertbautista)
  */
@@ -24,7 +29,7 @@ public class ApiConfig {
     public StringFactoryBean blJmxNamingBean() {
         return new StringFactoryBean();
     }
-    
+
     /**
      * Spring Boot does not support the configuration of both an HTTP connector and an HTTPS connector via properties.
      * In order to have both, we’ll need to configure one of them programmatically (HTTP).
@@ -44,6 +49,28 @@ public class ApiConfig {
         Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
         connector.setPort(port);
         return connector;
+    }
+
+    @Bean
+    @Primary
+    public DataSource webDS() throws NamingException {
+        JndiDataSourceLookup dataSourceLookup = new JndiDataSourceLookup();
+        DataSource dataSource = dataSourceLookup.getDataSource("jdbc/web");
+        return dataSource;
+    }
+
+    @Bean
+    public DataSource webSecureDS() throws NamingException {
+        JndiDataSourceLookup dataSourceLookup = new JndiDataSourceLookup();
+        DataSource dataSource = dataSourceLookup.getDataSource("jdbc/secure");
+        return dataSource;
+    }
+
+    @Bean
+    public DataSource webStorageDS() throws NamingException {
+        JndiDataSourceLookup dataSourceLookup = new JndiDataSourceLookup();
+        DataSource dataSource = dataSourceLookup.getDataSource("jdbc/storage");
+        return dataSource;
     }
 
 }

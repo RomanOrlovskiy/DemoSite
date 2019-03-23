@@ -17,6 +17,11 @@ import com.community.core.config.StringFactoryBean;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.sql.DataSource;
+import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
+import javax.naming.NamingException;
+import org.springframework.context.annotation.Primary;
+
 /**
  * @author Elbert Bautista (elbertbautista)
  */
@@ -62,5 +67,26 @@ public class AdminConfig {
         return connector;
     }
 
-}
+    @Bean
+    @Primary
+    public DataSource webDS() throws NamingException {
+        JndiDataSourceLookup dataSourceLookup = new JndiDataSourceLookup();
+        DataSource dataSource = dataSourceLookup.getDataSource("jdbc/web");
+        return dataSource;
+    }
 
+    @Bean
+    public DataSource webSecureDS() throws NamingException {
+        JndiDataSourceLookup dataSourceLookup = new JndiDataSourceLookup();
+        DataSource dataSource = dataSourceLookup.getDataSource("jdbc/secure");
+        return dataSource;
+    }
+
+    @Bean
+    public DataSource webStorageDS() throws NamingException {
+        JndiDataSourceLookup dataSourceLookup = new JndiDataSourceLookup();
+        DataSource dataSource = dataSourceLookup.getDataSource("jdbc/storage");
+        return dataSource;
+    }
+
+}

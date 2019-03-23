@@ -27,6 +27,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.sql.DataSource;
+import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
+import javax.naming.NamingException;
+import org.springframework.context.annotation.Primary;
+
 /**
  * @author Elbert Bautista (elbertbautista)
  */
@@ -46,7 +51,7 @@ public class SiteConfig {
     public List<String> customMessages() {
         return Arrays.asList("classpath:messages");
     }
-    
+
     /**
      * Disables caching only in the 'default' profile which is useful for development.
      */
@@ -55,9 +60,9 @@ public class SiteConfig {
     public List<String> removeCachingConfiguration() {
         return Arrays.asList("classpath:bl-override-ehcache.xml");
     }
-    
+
     /**
-     * Broadleaf Commerce comes with an Image Server that allows you to manipulate images.   For example, the 
+     * Broadleaf Commerce comes with an Image Server that allows you to manipulate images.   For example, the
      *  demo includes a high resolution image for each product that is reduced in size for browsing operations
      */
     @Merge("blStaticMapNamedOperations")
@@ -70,7 +75,7 @@ public class SiteConfig {
         browseOperation.put("resize-maintain-aspect-ratio", "true");
         browseOperation.put("resize-reduce-only", "true");
         operations.put("browse", browseOperation);
-        
+
         Map<String, String> thumbnailOperation = new HashMap<>();
         thumbnailOperation.put("resize-width-amount", "60");
         thumbnailOperation.put("resize-height-amount", "60");
@@ -78,26 +83,26 @@ public class SiteConfig {
         thumbnailOperation.put("resize-maintain-aspect-ratio", "true");
         thumbnailOperation.put("resize-reduce-only", "true");
         operations.put("thumbnail", thumbnailOperation);
-        
+
         return operations;
     }
-    
+
     /**
      * This ensures the Solr index is rebuilt at a regular interval since there is no automatic rebuilding or
      * invalidation of the index in core Broadleaf otherwise
-     * 
+     *
      * @author Phillip Verheyden (phillipuniverse)
      */
     @Configuration
     public static class SolrReindexConfig {
-        
+
         @Bean
         public SchedulerFactoryBean rebuildIndexScheduler(@Qualifier("rebuildIndexTrigger") Trigger rebuildIndexTrigger) {
             SchedulerFactoryBean scheduler = new SchedulerFactoryBean();
             scheduler.setTriggers(rebuildIndexTrigger);
             return scheduler;
         }
-        
+
         @Bean
         public SimpleTriggerFactoryBean rebuildIndexTrigger(@Qualifier("solrReindexJobDetail") JobDetail detail,
             @Value("${solr.index.start.delay}") long startDelay,
@@ -108,7 +113,7 @@ public class SiteConfig {
             trigger.setRepeatInterval(repeatInterval);
             return trigger;
         }
-        
+
         @Bean
         public FactoryBean<JobDetail> solrReindexJobDetail(SolrIndexService indexService) {
             MethodInvokingJobDetailFactoryBean detail = new MethodInvokingJobDetailFactoryBean();
@@ -137,6 +142,28 @@ public class SiteConfig {
         Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
         connector.setPort(port);
         return connector;
+    }
+
+    @Bean
+    @Primary
+    public DataSource webDS() throws NamingException {
+        JndiDataSourceLookup dataSourceLookup = new JndiDataSourceLookup();
+        DataSource dataSource = dataSourceLookup.getDataSource("jdbc/web");
+        return dataSource;
+    }
+
+    @Bean
+    public DataSource webSecureDS() throws NamingException {
+        JndiDataSourceLookup dataSourceLookup = new JndiDataSourceLookup();
+        DataSource dataSource = dataSourceLookup.getDataSource("jdbc/secure");
+        return dataSource;
+    }
+
+    @Bean
+    public DataSource webStorageDS() throws NamingException {
+        JndiDataSourceLookup dataSourceLookup = new JndiDataSourceLookup();
+        DataSource dataSource = dataSourceLookup.getDataSource("jdbc/storage");
+        return dataSource;
     }
 
 }
